@@ -18,8 +18,8 @@ namespace DataBaseRepositoryEF
 
             var users = new User[]
             {
-                new User { Login = "user1", Password = "12345" },
-                new User { Login = "user2", Password = "12345" }
+                new User { Login = "user1", Password = "1qazXSW@" },
+                new User { Login = "user2", Password = "1qazXSW@" }
             };
             foreach (User user in users)
             {
