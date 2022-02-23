@@ -1,6 +1,7 @@
 ﻿using DataAbstraction;
 using static DataAbstraction.CardTypeEnum;
 using static DataAbstraction.CardSystemEnum;
+using DataAbstraction.AuthModels;
 
 namespace DataBaseRepositoryEF
 {
@@ -10,10 +11,22 @@ namespace DataBaseRepositoryEF
         {
             context.Database.EnsureCreated();
 
-            if (context.CardEntities.Any())
+            if (context.Users.Any())
             {
                 return;
             }
+
+            var users = new User[]
+            {
+                new User { Login = "user1", Password = "12345" },
+                new User { Login = "user2", Password = "12345" }
+            };
+            foreach (User user in users)
+            {
+                context.Users.Add(user);
+            }
+            context.SaveChanges();
+
 
             var cards = new CardEntity[]
             {

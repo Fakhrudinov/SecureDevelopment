@@ -1,4 +1,5 @@
 ﻿using DataAbstraction;
+using DataAbstraction.AuthModels;
 using Microsoft.EntityFrameworkCore;
 
 namespace DataBaseRepositoryEF
@@ -11,5 +12,8 @@ namespace DataBaseRepositoryEF
         }
 
         public DbSet<CardEntity> CardEntities { get; set; }
+
+        public DbSet<User> Users { get; set; }
+        public DbSet<RefreshToken> RefreshTokens { get; set; }
     }
 }

@@ -6,11 +6,13 @@ using DataAbstraction.Repository;
 using Microsoft.Extensions.Options;
 using DataValidationService;
 using FluentValidation.Results;
+using Microsoft.AspNetCore.Authorization;
 
 namespace BankCards.Controllers
 {
     [Route("api/[controller]")]
     [ApiController]
+    [Authorize]
     public class CardsController : ControllerBase
     {
         public SelectRepositorySettings _repoSettings { get; set; }
@@ -32,6 +34,7 @@ namespace BankCards.Controllers
 
         // GET: api/Cards
         [HttpGet("AllCards")]
+        [Authorize]
         public async Task<IEnumerable<CardEntity>> GetCardEntities()
         {
             var allCards = await _repository.GetAllCards();
@@ -40,6 +43,7 @@ namespace BankCards.Controllers
 
         // GET: api/Cards/5
         [HttpGet("id/{id}")]
+        [Authorize]
         public async Task<ActionResult<CardEntity>> GetCardEntityById([FromRoute] int id)
         {
             var response = new ValidationResponseModel();
@@ -73,6 +77,7 @@ namespace BankCards.Controllers
 
         // GET: api/Cards/number/0000 1111 5673 6345
         [HttpGet("number/{number}")]
+        [Authorize]
         public async Task<ActionResult<CardEntity>> GetCardEntityByNumber([FromRoute] string number)
         {
             var response = new ValidationResponseModel();
@@ -105,6 +110,7 @@ namespace BankCards.Controllers
         }
 
         [HttpPut("Edit")]
+        [Authorize]
         public async Task<ActionResult<CardEntity>> EditCardEntity([FromBody] CardEntity cardEntity)
         {
             CardEntityValidationService validator = new CardEntityValidationService();
@@ -137,6 +143,7 @@ namespace BankCards.Controllers
         }
 
         [HttpPost("CreateNew")]
+        [Authorize]
         public async Task<ActionResult<CardEntity>> CreateCardEntity([FromBody] CardEntityToPost cardEntity)
         {
             var response = new ValidationResponseModel();
@@ -165,6 +172,7 @@ namespace BankCards.Controllers
         }
 
         [HttpPost("CreateNewAutoField")]
+        [Authorize]
         public async Task<ActionResult<CardEntity>> CreateCardEntityAutoField([FromBody] CardEntityToPostAutoField cardEntity)
         {
             var response = new ValidationResponseModel();
@@ -191,6 +199,7 @@ namespace BankCards.Controllers
 
         // DELETE: api/Cards/5
         [HttpDelete("delete/id/{id}")]
+        [Authorize]
         public async Task<IActionResult> DeleteCardEntity([FromRoute] int id)
         {
             var response = new ValidationResponseModel();

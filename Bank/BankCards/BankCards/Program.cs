@@ -1,3 +1,4 @@
+using AuthRepository;
 using DataBaseRepositoryEF;
 using Microsoft.AspNetCore.Hosting;
 using Microsoft.Extensions.DependencyInjection;
