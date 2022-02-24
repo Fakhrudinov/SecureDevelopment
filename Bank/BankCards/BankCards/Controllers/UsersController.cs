@@ -9,6 +9,8 @@ using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using DataValidationService;
+using System.Text;
+using System.Security.Cryptography;
 
 namespace PersonsAPI.Controllers
 {
@@ -20,6 +22,8 @@ namespace PersonsAPI.Controllers
     public class UsersController : ControllerBase
     {
         private readonly IUserService _userService;
+
+        private const string _userDelimiter = "kasjh12dfr4bj";
 
         public UsersController(IUserService userService)
         {
@@ -55,7 +59,9 @@ namespace PersonsAPI.Controllers
             }
             else
             {
-                await _userService.CreateNewUserAsync(user.Login, user.Password);
+                string hashed = HashThisUser(user.Login + _userDelimiter + user.Password);
+
+                await _userService.CreateNewUserAsync(user.Login, hashed);
                 return Ok();
             }
         }
@@ -77,8 +83,9 @@ namespace PersonsAPI.Controllers
                 return BadRequest(response);
             }
 
+            string hashed = HashThisUser(user.Login + _userDelimiter + user.Password);
 
-            int userExist = await _userService.GetUserByLogonAsync(user.Login, user.Password);
+            int userExist = await _userService.GetUserByLogonAsync(user.Login, hashed);
             //check existance
             if (userExist == 0)
             {
@@ -89,7 +96,7 @@ namespace PersonsAPI.Controllers
             }
             else
             {
-                var token = await _userService.Authentificate(user.Login, user.Password);
+                var token = await _userService.Authentificate(user.Login, hashed);
                 if (token is null)
                 {
                     response.IsValid = false;
@@ -140,6 +147,18 @@ namespace PersonsAPI.Controllers
             response.ValidationMessages = ValidationMessages;
 
             return response;
+        }
+        private string HashThisUser(string userData)
+        {
+            //Строка преобразуется в массив байтов.
+            UTF8Encoding textConverter = new UTF8Encoding();
+            byte[] passBytes = textConverter.GetBytes(userData);
+
+            SHA384 shaM = SHA384.Create();
+
+            shaM.ComputeHash(passBytes);
+            string result = Convert.ToBase64String(shaM.Hash);
+            return result;
         }
     }
 }

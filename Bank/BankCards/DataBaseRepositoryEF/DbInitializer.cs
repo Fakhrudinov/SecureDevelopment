@@ -9,6 +9,7 @@ namespace DataBaseRepositoryEF
     {
         public static void Initialize(BankCardContext context)
         {
+            context.Database.EnsureDeleted();
             context.Database.EnsureCreated();
 
             if (context.Users.Any())
@@ -18,8 +19,8 @@ namespace DataBaseRepositoryEF
 
             var users = new User[]
             {
-                new User { Login = "user1", Password = "1qazXSW@" },
-                new User { Login = "user2", Password = "1qazXSW@" }
+                new User { Login = "user1", Password = "bLvfochpY5GV1k1k1PYMQ0cjKr8x+uWfzqI8+q0cUdOqV1AV4p9S6FgShRLZAQ7I" }, //1qazXSW@
+                new User { Login = "user2", Password = "HL1eVoOpCjgrpfRcFkoKvJPusK/XdEE1HEdYs5uXRSN9RnZHJTq0IrBpPqirNiAh" }  //1qazXSW@
             };
             foreach (User user in users)
             {
