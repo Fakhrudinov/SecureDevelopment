@@ -1,0 +1,9 @@
+c:\Program Files (x86)\Microsoft SDKs\Windows\v10.0A\bin\NETFX 4.8 Tools\x64>gacutil -i e:\Downloads\Обучение\C#\DZ_Repozitoriy\SecureDevelopment\SecureDevelopment\Bank\BankCards\StrongNameSignedLogonGenerator\bin\Debug\net6.0\StrongNameSignedLogonGenerator.dll
+Microsoft (R) .NET Global Assembly Cache Utility.  Version 4.0.30319.0
+Copyright (c) Microsoft Corporation.  All rights reserved.
+
+Assembly successfully added to the cache
+
+
+Сборка появилась тут:
+c:\Windows\Microsoft.NET\assembly\GAC_MSIL\StrongNameSignedLogonGenerator\v4.0_1.0.0.0__e0a3f7c0e714fb6f\StrongNameSignedLogonGenerator.dll

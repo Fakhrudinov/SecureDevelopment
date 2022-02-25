@@ -13,9 +13,11 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataBaseRepository", "DataB
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataValidationService", "DataValidationService\DataValidationService.csproj", "{A0C3BB6E-25BB-4AC2-9534-FBAAE5271DBC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AuthService", "AuthService\AuthService.csproj", "{23399A26-A0E2-4925-8E82-3370648A8FFC}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "AuthService", "AuthService\AuthService.csproj", "{23399A26-A0E2-4925-8E82-3370648A8FFC}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "DataBaseAuthRepository", "AuthRepository\DataBaseAuthRepository.csproj", "{BEE1D036-E863-416F-9911-9CE6BC2F2DF8}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "DataBaseAuthRepository", "AuthRepository\DataBaseAuthRepository.csproj", "{BEE1D036-E863-416F-9911-9CE6BC2F2DF8}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "StrongNameSignedLogonGenerator", "StrongNameSignedLogonGenerator\StrongNameSignedLogonGenerator.csproj", "{61CFB47A-9DE5-473D-84FB-1063A6D41BE5}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -51,6 +53,10 @@ Global
 		{BEE1D036-E863-416F-9911-9CE6BC2F2DF8}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{BEE1D036-E863-416F-9911-9CE6BC2F2DF8}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{BEE1D036-E863-416F-9911-9CE6BC2F2DF8}.Release|Any CPU.Build.0 = Release|Any CPU
+		{61CFB47A-9DE5-473D-84FB-1063A6D41BE5}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{61CFB47A-9DE5-473D-84FB-1063A6D41BE5}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{61CFB47A-9DE5-473D-84FB-1063A6D41BE5}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{61CFB47A-9DE5-473D-84FB-1063A6D41BE5}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

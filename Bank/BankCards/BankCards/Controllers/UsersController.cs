@@ -125,6 +125,16 @@ namespace PersonsAPI.Controllers
             return Ok(newRefreshToken);
         }
 
+
+
+        [HttpGet("new/user")]
+        [AllowAnonymous]
+        public async Task<ActionResult<string>> GetNewUser()
+        {
+            return Ok("new string");
+        }
+
+
         private void SetTokenCookie(string token)
         {
             var cookieOptions = new CookieOptions
