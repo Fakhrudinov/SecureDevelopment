@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using DataValidationService;
 using System.Text;
 using System.Security.Cryptography;
+using BankCards.WorkWithForeignAssembly;
+using System.Reflection;
 
 namespace PersonsAPI.Controllers
 {
@@ -131,7 +133,13 @@ namespace PersonsAPI.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<string>> GetNewUser()
         {
-            return Ok("new string");
+            string result = AssemblyHandler.LoadAssembly();
+            // очистка
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+
+
+            return Ok(result);
         }
 
 
