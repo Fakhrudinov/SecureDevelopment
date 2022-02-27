@@ -131,9 +131,9 @@ namespace PersonsAPI.Controllers
 
         [HttpGet("new/user")]
         [AllowAnonymous]
-        public async Task<ActionResult<string>> GetNewUser()
+        public async Task<ActionResult<NewUser>> GetNewUser()
         {
-            string result = AssemblyHandler.LoadAssembly();
+            var result = AssemblyHandler.LoadAssembly();
             // очистка
             GC.Collect();
             GC.WaitForPendingFinalizers();

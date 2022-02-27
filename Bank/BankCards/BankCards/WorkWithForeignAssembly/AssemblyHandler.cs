@@ -1,4 +1,6 @@
-﻿using System;
+﻿using DataAbstraction.AuthModels;
+using System;
+using System.Collections.Generic;
 using System.IO;
 using System.Reflection;
 using System.Runtime.Loader;
@@ -7,9 +9,9 @@ namespace BankCards.WorkWithForeignAssembly
 {
     public static class AssemblyHandler
     {
-        public static string LoadAssembly()
+        public static NewUser LoadAssembly()
         {
-            string current = Directory.GetCurrentDirectory();//E:\\Downloads\\Обучение\\C#\\DZ_Repozitoriy\\SecureDevelopment\\SecureDevelopment\\Bank\\BankCards\\BankCards
+            string current = Directory.GetCurrentDirectory();
 
             var context = new CustomAssemblyLoadContext();
             // установка обработчика выгрузки
@@ -25,20 +27,38 @@ namespace BankCards.WorkWithForeignAssembly
 
             // вызываем метод
             var instance = Activator.CreateInstance(type);
-            string result = (string)greetMethod.Invoke(instance, null);
-            // выводим результат метода на консоль
-            Console.WriteLine(result);
+            //int result = (int)greetMethod.Invoke(instance, new object[] { number });
+            object result = greetMethod.Invoke(instance, null);
+
+            //foreach (PropertyInfo prop in props)
+            //{
+            //    object propValue = prop.GetValue(result, null);
+            //    Console.WriteLine();
+            //    // Do something with propValue
+            //}
+
+            //foreach(var qqq in result.GetType()
+            //                         .GetProperties())
+            //{
+            //    string val = qqq.ToString();
+            //    Console.WriteLine(val.);
+            //}
+            //var user = (NewUser)result;
 
             //// смотрим, какие сборки у нас загружены
             //foreach (Assembly asm in AppDomain.CurrentDomain.GetAssemblies())
             //    Console.WriteLine(asm.GetName().Name);
 
+            IList<PropertyInfo> props = new List<PropertyInfo>(result.GetType().GetProperties());
+            NewUser user = new NewUser { 
+                Login= props[0].GetValue(result, null).ToString(),
+                Password= props[1].GetValue(result, null).ToString()
+            };
+
             // выгружаем контекст
             context.Unload();
 
-
-
-            return result;
+            return user;
         }
         // обработчик выгрузки контекста
         private static void Context_Unloading(AssemblyLoadContext obj)
