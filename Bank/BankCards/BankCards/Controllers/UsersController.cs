@@ -133,15 +133,37 @@ namespace PersonsAPI.Controllers
         [AllowAnonymous]
         public async Task<ActionResult<NewUser>> GetNewUser()
         {
-            var result = AssemblyHandler.LoadAssembly();
+            NewUser result = GetNewUserFromForeignLib();
+
+            bool loginNotCreated = true;
+            while (loginNotCreated)
+            {
+                int loginExist = await _userService.GetUserByLoginAsync(result.Login);
+                //check existance
+                if (loginExist != 0) // exist, generate user again
+                {
+                    result = GetNewUserFromForeignLib();
+                }
+                else // ok, write new user to dataBase
+                {
+                    string hashed = HashThisUser(result.Login + _userDelimiter + result.Password);
+                    await _userService.CreateNewUserAsync(result.Login, hashed);
+
+                    loginNotCreated = false;
+                }
+            }
+            return Ok(result);
+        }
+
+        private NewUser GetNewUserFromForeignLib()
+        {
+            NewUser result = AssemblyHandler.LoadAssembly();
             // очистка
             GC.Collect();
             GC.WaitForPendingFinalizers();
 
-
-            return Ok(result);
+            return result;
         }
-
 
         private void SetTokenCookie(string token)
         {
