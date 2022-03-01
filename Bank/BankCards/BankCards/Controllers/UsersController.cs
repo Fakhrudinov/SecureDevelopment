@@ -92,7 +92,7 @@ namespace PersonsAPI.Controllers
             if (userExist == 0)
             {
                 response.IsValid = false;
-                response.ValidationMessages.Add($"U_106.1 '{user.Login}' пользователь или пароль не корректен");
+                response.ValidationMessages.Add($"U_106.2 '{user.Login}' пользователь или пароль не корректен");
 
                 return UnprocessableEntity(response);
             }
