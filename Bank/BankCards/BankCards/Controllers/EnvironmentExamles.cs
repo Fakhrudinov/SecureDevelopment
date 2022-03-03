@@ -32,5 +32,20 @@ namespace BankCards.Controllers
 
             return Ok(example);
         }
+
+        [HttpGet("values/GetSection/GetValue")]
+        [AllowAnonymous]
+        public ActionResult GetSection()
+        {
+            EnvironmentExampleEntity example = new EnvironmentExampleEntity();
+
+            var settingsSection = _configuration.GetSection("MyEnvironmentValues");
+
+            example.MyBoolValue = settingsSection.GetValue<bool>("MyBoolValue");
+            example.MyStringValue = settingsSection.GetValue<string>("MyStringValue");
+            example.MyIntValue = settingsSection.GetValue<int>("MyIntValue");
+
+            return Ok(example);
+        }
     }
 }
