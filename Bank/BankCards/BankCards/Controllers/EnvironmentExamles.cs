@@ -76,5 +76,20 @@ namespace BankCards.Controllers
 
             return Ok(example);
         }
+
+        [HttpGet("values/GetSecrets")]
+        [AllowAnonymous]
+        public ActionResult GetSecrets()
+        {
+            string result;
+
+            string secretKey1 = _configuration["SomeKey"];
+            string secretKey2 = _configuration["NewKey"];
+            string secretKey3 = _configuration["KeyNotExist"];
+
+            result = secretKey1 + "  /  " + secretKey2 + "  /  " + secretKey3;
+
+            return Ok(result);
+        }
     }
 }
