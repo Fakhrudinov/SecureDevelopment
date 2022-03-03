@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Authorization;
 using Microsoft.AspNetCore.Http;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.Extensions.Configuration;
+using Microsoft.Extensions.Options;
 using System.Threading.Tasks;
 
 namespace BankCards.Controllers
@@ -13,10 +14,12 @@ namespace BankCards.Controllers
     public class EnvironmentExamles : ControllerBase
     {
         private readonly IConfiguration _configuration;
+        private readonly IOptions<EnvironmentExampleEntity> _options;
 
-        public EnvironmentExamles(IConfiguration configuration)
+        public EnvironmentExamles(IConfiguration configuration, IOptions<EnvironmentExampleEntity> options)
         {
             _configuration = configuration;
+            _options = options;
         }
 
 
@@ -44,6 +47,15 @@ namespace BankCards.Controllers
             example.MyBoolValue = settingsSection.GetValue<bool>("MyBoolValue");
             example.MyStringValue = settingsSection.GetValue<string>("MyStringValue");
             example.MyIntValue = settingsSection.GetValue<int>("MyIntValue");
+
+            return Ok(example);
+        }
+
+        [HttpGet("values/GetValuesWithOption")]
+        [AllowAnonymous]
+        public ActionResult GetValuesWithOption()
+        {
+            EnvironmentExampleEntity example = _options.Value;
 
             return Ok(example);
         }

@@ -1,5 +1,6 @@
 using AuthRepository;
 using AuthService;
+using DataAbstraction.EnvironmentVariables;
 using DataAbstraction.Repository;
 using DataBaseRepositoryEF;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -100,6 +101,8 @@ namespace BankCards
 
             services.AddControllers();
 
+            // examples with environment
+            services.Configure<EnvironmentExampleEntity>(Configuration.GetSection("MyEnvironmentValues"));
 
             //services.AddSwaggerGen(c =>
             //{
