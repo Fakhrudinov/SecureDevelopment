@@ -103,6 +103,7 @@ namespace BankCards
 
             // examples with environment
             services.Configure<EnvironmentExampleEntity>(Configuration.GetSection("MyEnvironmentValues"));
+            services.Configure<EnvironmentExampleEntitySecond>(Configuration.GetSection("MyEnvironmentValues"));
 
             //services.AddSwaggerGen(c =>
             //{

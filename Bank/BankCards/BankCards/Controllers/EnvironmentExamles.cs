@@ -15,17 +15,23 @@ namespace BankCards.Controllers
     {
         private readonly IConfiguration _configuration;
         private readonly IOptions<EnvironmentExampleEntity> _options;
+        private IOptionsSnapshot<EnvironmentExampleEntitySecond> _snapshotOptions;
 
-        public EnvironmentExamles(IConfiguration configuration, IOptions<EnvironmentExampleEntity> options)
+        public EnvironmentExamles(
+            IConfiguration configuration, 
+            IOptions<EnvironmentExampleEntity> options,
+            IOptionsSnapshot<EnvironmentExampleEntitySecond> snapshotOptions
+            )
         {
             _configuration = configuration;
             _options = options;
+            _snapshotOptions = snapshotOptions;
         }
 
 
         [HttpGet("values/GetValue")]
         [AllowAnonymous]
-        public ActionResult GetValues()
+        public ActionResult GetValues()//works like scoped
         {
             EnvironmentExampleEntity example = new EnvironmentExampleEntity();
 
@@ -38,7 +44,7 @@ namespace BankCards.Controllers
 
         [HttpGet("values/GetSection/GetValue")]
         [AllowAnonymous]
-        public ActionResult GetSection()
+        public ActionResult GetSection()//works like scoped
         {
             EnvironmentExampleEntity example = new EnvironmentExampleEntity();
 
@@ -53,9 +59,22 @@ namespace BankCards.Controllers
 
         [HttpGet("values/GetValuesWithOption")]
         [AllowAnonymous]
-        public ActionResult GetValuesWithOption()
+        public ActionResult GetValuesWithOption()//works like singleton
         {
             EnvironmentExampleEntity example = _options.Value;
+
+            return Ok(example);
+        }
+
+        [HttpGet("values/GetValuesBindedScoped")]
+        [AllowAnonymous]
+        public ActionResult GetValuesWithOptionScoped()//works like scoped
+        {
+            EnvironmentExampleEntitySecond example = new EnvironmentExampleEntitySecond();
+
+            example.MyBoolValue = _snapshotOptions.Value.MyBoolValue;
+            example.MyStringValue = _snapshotOptions.Value.MyStringValue;
+            example.MyIntValue = _snapshotOptions.Value.MyIntValue;
 
             return Ok(example);
         }
