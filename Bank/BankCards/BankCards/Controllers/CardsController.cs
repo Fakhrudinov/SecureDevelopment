@@ -7,6 +7,8 @@ using Microsoft.Extensions.Options;
 using DataValidationService;
 using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
+using System.Threading;
+using System;
 
 namespace BankCards.Controllers
 {
@@ -35,10 +37,26 @@ namespace BankCards.Controllers
         // GET: api/Cards
         [HttpGet("AllCards")]
         [Authorize]
-        public async Task<IEnumerable<CardEntity>> GetCardEntities()
+        public async Task<ActionResult<IEnumerable<CardEntity>>> GetCardEntities()
         {
-            var allCards = await _repository.GetAllCards();
-            return allCards;
+            CancellationTokenSource cts = new CancellationTokenSource();
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
+            try
+            {
+                var allCards = await _repository.GetAllCards(cts);
+                return Ok(allCards);
+            }
+            catch (OperationCanceledException)
+            {
+                var response = new ValidationResponseModel();
+                response.IsValid = false;
+                response.ValidationMessages.Add($"T_201.1 TimeOut Error. Contact admin to investigate problem");
+                return UnprocessableEntity(response);
+            }
+            finally
+            {
+                cts.Dispose();
+            }
         }
 
         // GET: api/Cards/5
@@ -60,8 +78,24 @@ namespace BankCards.Controllers
                 return BadRequest(response);
             }
 
+            CardEntity cardEntity = null;
 
-            CardEntity cardEntity = await _repository.GetCardById(id);
+            CancellationTokenSource cts = new CancellationTokenSource();
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
+            try
+            {
+                cardEntity = await _repository.GetCardById(id, cts);
+            }
+            catch (OperationCanceledException)
+            {
+                response.IsValid = false;
+                response.ValidationMessages.Add($"T_202.1 TimeOut Error. Contact admin to investigate problem");
+                return UnprocessableEntity(response);
+            }
+            finally
+            {
+                cts.Dispose();
+            }
 
             //check existance
             if (cardEntity == null)
@@ -95,8 +129,24 @@ namespace BankCards.Controllers
                 return BadRequest(response);
             }
 
+            CardEntity cardEntity = null;
+            CancellationTokenSource cts = new CancellationTokenSource();
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
+            try
+            {
+                cardEntity = await _repository.GetCardByNumber(number, cts);
+            }
+            catch (OperationCanceledException)
+            {
+                response.IsValid = false;
+                response.ValidationMessages.Add($"T_203.1 TimeOut Error. Contact admin to investigate problem");
+                return UnprocessableEntity(response);
+            }
+            finally
+            {
+                cts.Dispose();
+            }
 
-            CardEntity cardEntity = await _repository.GetCardByNumber(number);
             //check existance
             if (cardEntity == null)
             {
@@ -125,7 +175,24 @@ namespace BankCards.Controllers
                 return BadRequest(response);
             }
 
-            bool idExist = await _repository.CheckCardIdExist(cardEntity.Id);
+            bool idExist = false;
+            CancellationTokenSource cts = new CancellationTokenSource();
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
+            try
+            {
+                idExist = await _repository.CheckCardIdExist(cardEntity.Id, cts);
+            }
+            catch (OperationCanceledException)
+            {
+                response.IsValid = false;
+                response.ValidationMessages.Add($"T_204.1 TimeOut Error. Contact admin to investigate problem");
+                return UnprocessableEntity(response);
+            }
+            finally
+            {
+                cts.Dispose();
+            }
+
             //check existance
             if (!idExist)
             {
@@ -136,7 +203,22 @@ namespace BankCards.Controllers
             }
             else
             {
-                await _repository.EditCardEntity(cardEntity);
+                cts = new CancellationTokenSource();
+                cts.CancelAfter(TimeSpan.FromSeconds(5));
+                try
+                {
+                    await _repository.EditCardEntity(cardEntity, cts);
+                }
+                catch (OperationCanceledException)
+                {
+                    response.IsValid = false;
+                    response.ValidationMessages.Add($"T_204.2 TimeOut Error. Contact admin to investigate problem");
+                    return UnprocessableEntity(response);
+                }
+                finally
+                {
+                    cts.Dispose();
+                }
 
                 return Ok(cardEntity);
             }
@@ -166,8 +248,23 @@ namespace BankCards.Controllers
                 return BadRequest(response);
             }
 
-            CardEntity newCard = await _repository.CreateNewCard(cardEntity);
-
+            CardEntity newCard = null;
+            CancellationTokenSource cts = new CancellationTokenSource();
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
+            try
+            {
+                newCard = await _repository.CreateNewCard(cardEntity, cts);
+            }
+            catch (OperationCanceledException)
+            {
+                response.IsValid = false;
+                response.ValidationMessages.Add($"T_205.1 TimeOut Error. Contact admin to investigate problem");
+                return UnprocessableEntity(response);
+            }
+            finally
+            {
+                cts.Dispose();
+            }
             return Ok(newCard);
         }
 
@@ -192,8 +289,24 @@ namespace BankCards.Controllers
                 return BadRequest(response);
             }
 
+            CardEntity newCard = null;
+            CancellationTokenSource cts = new CancellationTokenSource();
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
+            try
+            {
+                newCard = await _repository.CreateNewCardAutoField(cardEntity, cts);
+            }
+            catch (OperationCanceledException)
+            {
+                response.IsValid = false;
+                response.ValidationMessages.Add($"T_206.1 TimeOut Error. Contact admin to investigate problem");
+                return UnprocessableEntity(response);
+            }
+            finally
+            {
+                cts.Dispose();
+            }
 
-            CardEntity newCard = await _repository.CreateNewCardAutoField(cardEntity);
             return Ok(newCard);
         }
 
@@ -216,8 +329,24 @@ namespace BankCards.Controllers
                 return BadRequest(response);
             }
 
+            bool idExist = false;
+            CancellationTokenSource cts = new CancellationTokenSource();
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
+            try
+            {
+                idExist = await _repository.CheckCardIdExist(id, cts);
+            }
+            catch (OperationCanceledException)
+            {
+                response.IsValid = false;
+                response.ValidationMessages.Add($"T_207.1 TimeOut Error. Contact admin to investigate problem");
+                return UnprocessableEntity(response);
+            }
+            finally
+            {
+                cts.Dispose();
+            }
 
-            bool idExist = await _repository.CheckCardIdExist(id);
             //check existance
             if (!idExist)
             {
@@ -228,7 +357,22 @@ namespace BankCards.Controllers
             }
             else
             {
-                await _repository.DeleteCardEntity(id);
+                cts = new CancellationTokenSource();
+                cts.CancelAfter(TimeSpan.FromSeconds(5));
+                try
+                {
+                    await _repository.DeleteCardEntity(id, cts);
+                }
+                catch (OperationCanceledException)
+                {
+                    response.IsValid = false;
+                    response.ValidationMessages.Add($"T_207.2 TimeOut Error. Contact admin to investigate problem");
+                    return UnprocessableEntity(response);
+                }
+                finally
+                {
+                    cts.Dispose();
+                }
 
                 return Ok();
             }

@@ -13,36 +13,43 @@ namespace DataBaseRepositoryEF
             _context = context;
         }
 
-        public Task<bool> CheckCardIdExist(int id)
+        public async Task<bool> CheckCardIdExist(int id, CancellationTokenSource cts)
         {
-            var aaa = _context.CardEntities.Any(e => e.Id == id);
+            var aaa = await _context.CardEntities
+                .Where(e => e.Id == id)
+                .AnyAsync(cts.Token);
             if (aaa)
             {
-                return Task.FromResult(true);
+                return Task.FromResult(true).Result;
             }
             
-            return Task.FromResult(false);
+            return Task.FromResult(false).Result;
         }
 
-        public async Task<IEnumerable<CardEntity>> GetAllCards()
+        public async Task<IEnumerable<CardEntity>> GetAllCards(CancellationTokenSource cts)
         {
-            return await _context.CardEntities.ToListAsync();
+            return await _context.CardEntities.ToListAsync(cts.Token);
         }
 
-        public async Task<CardEntity> GetCardById(int id)
-        {
-            return await _context.CardEntities.FindAsync(id);
-        }
-
-        public async Task<CardEntity> GetCardByNumber(string number)
+        public async Task<CardEntity> GetCardById(int id, CancellationTokenSource cts)
         {
             return await _context.CardEntities
-                .FirstOrDefaultAsync(card => card.Number.Equals(number));
+                .Where(e => e.Id == id)
+                .FirstOrDefaultAsync(cts.Token);
         }
 
-        public async Task EditCardEntity(CardEntity cardEntity)
+        public async Task<CardEntity> GetCardByNumber(string number, CancellationTokenSource cts)
         {
-            CardEntity cardToEdit = await _context.CardEntities.FindAsync(cardEntity.Id);
+            return await _context.CardEntities
+                .Where(card => card.Number.Equals(number))
+                .FirstOrDefaultAsync(cts.Token);
+        }
+
+        public async Task EditCardEntity(CardEntity cardEntity, CancellationTokenSource cts)
+        {
+            CardEntity cardToEdit = await _context.CardEntities
+                .Where(e => e.Id == cardEntity.Id)
+                .FirstOrDefaultAsync(cts.Token);
 
             if (cardToEdit != null)
             {
@@ -56,38 +63,41 @@ namespace DataBaseRepositoryEF
 
                 _context.CardEntities.Update(cardToEdit);
 
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(cts.Token);
             }
         }
 
-        public async Task<CardEntity> CreateNewCard(CardEntityToPost cardEntity)
+        public async Task<CardEntity> CreateNewCard(CardEntityToPost cardEntity, CancellationTokenSource cts)
         {
             CardEntity newCard = new CardEntity(cardEntity.HolderName, cardEntity.Number, cardEntity.CVVCode, cardEntity.Type, cardEntity.System, cardEntity.IsBlocked);
 
-            _context.CardEntities.Add(newCard);
-            await _context.SaveChangesAsync();
+            await _context.CardEntities.AddAsync(newCard, cts.Token);
+            await _context.SaveChangesAsync(cts.Token);
 
             return newCard;
         }
 
-        public async Task<CardEntity> CreateNewCardAutoField(CardEntityToPostAutoField cardEntity)
+        public async Task<CardEntity> CreateNewCardAutoField(CardEntityToPostAutoField cardEntity, CancellationTokenSource cts)
         {
             CardEntity newCard = new CardEntity(cardEntity.HolderName, cardEntity.Type, cardEntity.System);
 
-            _context.CardEntities.Add(newCard);
-            await _context.SaveChangesAsync();
+            await _context.CardEntities.AddAsync(newCard, cts.Token);
+            await _context.SaveChangesAsync(cts.Token);
 
             return newCard;
         }
 
-        public async Task DeleteCardEntity(int id)
+        public async Task DeleteCardEntity(int id, CancellationTokenSource cts)
         {
-            var cardEntity = await _context.CardEntities.FindAsync(id);
-            if(cardEntity != null)
+            var cardEntity = await _context.CardEntities
+                .Where(e => e.Id == id)
+                .FirstOrDefaultAsync(cts.Token);
+
+            if (cardEntity != null)
             {
                 _context.CardEntities.Remove(cardEntity);
 
-                await _context.SaveChangesAsync();
+                await _context.SaveChangesAsync(cts.Token);
             }
         }
     }
