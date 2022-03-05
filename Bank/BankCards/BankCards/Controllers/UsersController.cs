@@ -13,6 +13,7 @@ using System.Text;
 using System.Security.Cryptography;
 using BankCards.WorkWithForeignAssembly;
 using System.Reflection;
+using System.Threading;
 
 namespace PersonsAPI.Controllers
 {
@@ -50,7 +51,25 @@ namespace PersonsAPI.Controllers
                 return BadRequest(response);
             }
 
-            int loginExist = await _userService.GetUserByLoginAsync(user.Login);
+            int loginExist;
+            CancellationTokenSource cts = new CancellationTokenSource();
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
+            try
+            {
+                loginExist = await _userService.GetUserByLoginAsync(user.Login, cts);
+            }
+            catch (OperationCanceledException)
+            {
+                response.IsValid = false;
+                response.ValidationMessages.Add($"T_101.1 TimeOut Error. Contact admin to investigate problem");
+                return UnprocessableEntity(response);
+            }
+            finally
+            {
+                cts.Dispose();
+            }
+
+
             //check existance
             if (loginExist != 0)
             {
@@ -62,8 +81,24 @@ namespace PersonsAPI.Controllers
             else
             {
                 string hashed = HashThisUser(user.Login + _userDelimiter + user.Password);
+                
+                cts = new CancellationTokenSource();
+                cts.CancelAfter(TimeSpan.FromSeconds(5));
+                try
+                {
+                    await _userService.CreateNewUserAsync(user.Login, hashed, cts);
+                }
+                catch (OperationCanceledException)
+                {
+                    response.IsValid = false;
+                    response.ValidationMessages.Add($"T_101.2 TimeOut Error. Contact admin to investigate problem");
+                    return UnprocessableEntity(response);
+                }
+                finally
+                {
+                    cts.Dispose();
+                }
 
-                await _userService.CreateNewUserAsync(user.Login, hashed);
                 return Ok();
             }
         }
@@ -87,7 +122,25 @@ namespace PersonsAPI.Controllers
 
             string hashed = HashThisUser(user.Login + _userDelimiter + user.Password);
 
-            int userExist = await _userService.GetUserByLogonAsync(user.Login, hashed);
+            int userExist;
+            CancellationTokenSource cts = new CancellationTokenSource();
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
+            try
+            {
+                userExist = await _userService.GetUserByLogonAsync(user.Login, hashed, cts);
+            }
+            catch (OperationCanceledException)
+            {
+                response.IsValid = false;
+                response.ValidationMessages.Add($"T_102.1 TimeOut Error. Contact admin to investigate problem");
+                return UnprocessableEntity(response);
+            }
+            finally
+            {
+                cts.Dispose();
+            }
+
+
             //check existance
             if (userExist == 0)
             {
@@ -98,16 +151,32 @@ namespace PersonsAPI.Controllers
             }
             else
             {
-                var token = await _userService.Authentificate(user.Login, hashed);
-                if (token is null)
+                cts = new CancellationTokenSource();
+                cts.CancelAfter(TimeSpan.FromSeconds(5));
+                try
+                {
+                    var token = await _userService.Authentificate(user.Login, hashed, cts);
+
+                    if (token is null)
+                    {
+                        response.IsValid = false;
+                        response.ValidationMessages.Add($"U_107.1 для пользователя '{user.Login}' аутентификация не удалась");
+
+                        return BadRequest(response);
+                    }
+                    SetTokenCookie(token.RefreshToken);
+                    return Ok(token);
+                }
+                catch (OperationCanceledException)
                 {
                     response.IsValid = false;
-                    response.ValidationMessages.Add($"U_107.1 для пользователя '{user.Login}' аутентификация не удалась");
-
-                    return BadRequest(response);
+                    response.ValidationMessages.Add($"T_102.2 TimeOut Error. Contact admin to investigate problem");
+                    return UnprocessableEntity(response);
                 }
-                SetTokenCookie(token.RefreshToken);
-                return Ok(token);
+                finally
+                {
+                    cts.Dispose();
+                }
             }
         }
 
@@ -116,7 +185,26 @@ namespace PersonsAPI.Controllers
         public async Task<IActionResult> Refresh()
         {
             string oldRefreshToken = Request.Cookies["refreshToken"];
-            string newRefreshToken = await _userService.RefreshToken(oldRefreshToken);
+
+            string newRefreshToken;
+            CancellationTokenSource cts = new CancellationTokenSource();
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
+            try
+            {
+                newRefreshToken = await _userService.RefreshToken(oldRefreshToken, cts);
+            }
+            catch (OperationCanceledException)
+            {
+                var response = new ValidationResponseModel();
+                response.IsValid = false;
+                response.ValidationMessages.Add($"T_103.1 TimeOut Error. Contact admin to investigate problem");
+                return UnprocessableEntity(response);
+            }
+            finally
+            {
+                cts.Dispose();
+            }
+
 
             if (string.IsNullOrWhiteSpace(newRefreshToken))
             {
@@ -134,11 +222,29 @@ namespace PersonsAPI.Controllers
         public async Task<ActionResult<NewUser>> GetNewUser()
         {
             NewUser result = GetNewUserFromForeignLib();
+            var response = new ValidationResponseModel();
 
             bool loginNotCreated = true;
             while (loginNotCreated)
             {
-                int loginExist = await _userService.GetUserByLoginAsync(result.Login);
+                int loginExist;
+                CancellationTokenSource cts = new CancellationTokenSource();
+                cts.CancelAfter(TimeSpan.FromSeconds(5));
+                try
+                {
+                    loginExist = await _userService.GetUserByLoginAsync(result.Login, cts);
+                }
+                catch (OperationCanceledException)
+                {
+                    response.IsValid = false;
+                    response.ValidationMessages.Add($"T_104.1 TimeOut Error. Contact admin to investigate problem");
+                    return UnprocessableEntity(response);
+                }
+                finally
+                {
+                    cts.Dispose();
+                }
+
                 //check existance
                 if (loginExist != 0) // exist, generate user again
                 {
@@ -147,7 +253,23 @@ namespace PersonsAPI.Controllers
                 else // ok, write new user to dataBase
                 {
                     string hashed = HashThisUser(result.Login + _userDelimiter + result.Password);
-                    await _userService.CreateNewUserAsync(result.Login, hashed);
+
+                    cts = new CancellationTokenSource();
+                    cts.CancelAfter(TimeSpan.FromSeconds(5));
+                    try
+                    {
+                        await _userService.CreateNewUserAsync(result.Login, hashed, cts);
+                    }
+                    catch (OperationCanceledException)
+                    {
+                        response.IsValid = false;
+                        response.ValidationMessages.Add($"T_104.2 TimeOut Error. Contact admin to investigate problem");
+                        return UnprocessableEntity(response);
+                    }
+                    finally
+                    {
+                        cts.Dispose();
+                    }
 
                     loginNotCreated = false;
                 }
