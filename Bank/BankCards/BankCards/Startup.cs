@@ -1,5 +1,7 @@
 using AuthRepository;
 using AuthService;
+using AutoMapper;
+using AutoMapperLib;
 using DataAbstraction.EnvironmentVariables;
 using DataAbstraction.Repository;
 using DataBaseRepositoryEF;
@@ -104,6 +106,11 @@ namespace BankCards
             // examples with environment
             services.Configure<EnvironmentExampleEntity>(Configuration.GetSection("MyEnvironmentValues"));
             services.Configure<EnvironmentExampleEntitySecond>(Configuration.GetSection("MyEnvironmentValues"));
+
+
+            //AutoMapper registration:
+            services.AddAutoMapper(c => c.AddProfile<BankCardMappingProfile>(), typeof(Startup));
+
 
             //services.AddSwaggerGen(c =>
             //{

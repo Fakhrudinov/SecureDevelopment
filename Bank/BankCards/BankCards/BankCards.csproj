@@ -6,6 +6,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <PackageReference Include="AutoMapper.Extensions.Microsoft.DependencyInjection" Version="11.0.0" />
     <PackageReference Include="Microsoft.EntityFrameworkCore.Tools" Version="6.0.2">
       <PrivateAssets>all</PrivateAssets>
       <IncludeAssets>runtime; build; native; contentfiles; analyzers; buildtransitive</IncludeAssets>
@@ -18,6 +19,7 @@
   <ItemGroup>
     <ProjectReference Include="..\AuthRepository\DataBaseAuthRepository.csproj" />
     <ProjectReference Include="..\AuthService\AuthService.csproj" />
+    <ProjectReference Include="..\AutoMapperLib\AutoMapperLib.csproj" />
     <ProjectReference Include="..\DataAbstraction\DataAbstraction.csproj" />
     <ProjectReference Include="..\DataBaseRepositoryEF\DataBaseRepositoryEF.csproj" />
     <ProjectReference Include="..\DataBaseRepository\DataBaseRepository.csproj" />

@@ -9,6 +9,7 @@ using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using System.Threading;
 using System;
+using AutoMapper;
 
 namespace BankCards.Controllers
 {
@@ -19,8 +20,13 @@ namespace BankCards.Controllers
     {
         public SelectRepositorySettings _repoSettings { get; set; }
         private IRepository _repository;
+        private readonly IMapper _autoMapper; 
 
-        public CardsController(IDataBaseRepositoryEF repositoryEF, IDataBaseRepository repository, IOptions<SelectRepositorySettings> repoSettings)
+        public CardsController(
+            IDataBaseRepositoryEF repositoryEF, 
+            IDataBaseRepository repository, 
+            IOptions<SelectRepositorySettings> repoSettings,
+            IMapper autoMapper)
         {
             _repoSettings = repoSettings.Value;
 
@@ -31,7 +37,9 @@ namespace BankCards.Controllers
             else
             {
                 _repository = repository;
-            }            
+            }
+            
+            _autoMapper = autoMapper;
         }
 
         // GET: api/Cards
@@ -231,13 +239,17 @@ namespace BankCards.Controllers
             var response = new ValidationResponseModel();
             CardEntityValidationService validator = new CardEntityValidationService();
             CardEntity cardCheck = new CardEntity();
+            // mapping manually:
+            //cardCheck.HolderName = cardEntity.HolderName;
+            //cardCheck.Number = cardEntity.Number;
+            //cardCheck.CVVCode = cardEntity.CVVCode;
+            //cardCheck.Type = cardEntity.Type;
+            //cardCheck.System = cardEntity.System;
+            //cardCheck.IsBlocked = cardEntity.IsBlocked;
+
+            //mapping by AutoMap:
+            cardCheck = _autoMapper.Map<CardEntity>(cardEntity);
             cardCheck.Id = 1;
-            cardCheck.HolderName = cardEntity.HolderName;
-            cardCheck.Number = cardEntity.Number;
-            cardCheck.CVVCode = cardEntity.CVVCode;
-            cardCheck.Type = cardEntity.Type;
-            cardCheck.System = cardEntity.System;
-            cardCheck.IsBlocked = cardEntity.IsBlocked;
 
             // check format
             var validationResult = validator.Validate(cardCheck);
@@ -275,10 +287,14 @@ namespace BankCards.Controllers
             var response = new ValidationResponseModel();
             CardEntityValidationService validator = new CardEntityValidationService();
             CardEntity cardCheck = new CardEntity();
+            // mapping manually:
+            //cardCheck.HolderName = cardEntity.HolderName;
+            //cardCheck.Type = cardEntity.Type;
+            //cardCheck.System = cardEntity.System;
+
+            //mapping by AutoMap:
+            cardCheck = _autoMapper.Map<CardEntity>(cardEntity);
             cardCheck.Id = 1;
-            cardCheck.HolderName = cardEntity.HolderName;
-            cardCheck.Type = cardEntity.Type;
-            cardCheck.System = cardEntity.System;
 
             // check format
             var validationResult = validator.Validate(cardCheck);
