@@ -21,6 +21,8 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "StrongNameSignedLogonGenera
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AutoMapperLib", "AutoMapperLib\AutoMapperLib.csproj", "{6D1C5C78-6433-47D7-9FFC-B642E74B339F}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AbstractFactoryBankCards", "AbstractFactoryBancCards\AbstractFactoryBankCards.csproj", "{21C9C03B-03F2-4704-B247-68AF7D71D815}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -63,6 +65,10 @@ Global
 		{6D1C5C78-6433-47D7-9FFC-B642E74B339F}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{6D1C5C78-6433-47D7-9FFC-B642E74B339F}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{6D1C5C78-6433-47D7-9FFC-B642E74B339F}.Release|Any CPU.Build.0 = Release|Any CPU
+		{21C9C03B-03F2-4704-B247-68AF7D71D815}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{21C9C03B-03F2-4704-B247-68AF7D71D815}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{21C9C03B-03F2-4704-B247-68AF7D71D815}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{21C9C03B-03F2-4704-B247-68AF7D71D815}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

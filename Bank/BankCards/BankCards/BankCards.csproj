@@ -17,6 +17,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <ProjectReference Include="..\AbstractFactoryBancCards\AbstractFactoryBankCards.csproj" />
     <ProjectReference Include="..\AuthRepository\DataBaseAuthRepository.csproj" />
     <ProjectReference Include="..\AuthService\AuthService.csproj" />
     <ProjectReference Include="..\AutoMapperLib\AutoMapperLib.csproj" />

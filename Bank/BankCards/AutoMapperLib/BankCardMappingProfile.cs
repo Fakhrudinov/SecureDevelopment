@@ -12,6 +12,8 @@ namespace AutoMapperLib
 
             CreateMap<CardEntityToPostAutoField, CardEntity>();
 
+            CreateMap<CardEntityToPostForAbstractFactory, CardEntity>();
+
             /*
             // with manual field equals set = in case of different names
             CreateMap<CardEntityToPost, CardEntity>()// map from CardEntityToPost to CardEntity
