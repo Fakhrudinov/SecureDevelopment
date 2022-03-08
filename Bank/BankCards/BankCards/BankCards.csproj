@@ -21,6 +21,7 @@
     <ProjectReference Include="..\AuthRepository\DataBaseAuthRepository.csproj" />
     <ProjectReference Include="..\AuthService\AuthService.csproj" />
     <ProjectReference Include="..\AutoMapperLib\AutoMapperLib.csproj" />
+    <ProjectReference Include="..\ChainOfResponsibilityBankCards\ChainOfResponsibilityBankCards.csproj" />
     <ProjectReference Include="..\DataAbstraction\DataAbstraction.csproj" />
     <ProjectReference Include="..\DataBaseRepositoryEF\DataBaseRepositoryEF.csproj" />
     <ProjectReference Include="..\DataBaseRepository\DataBaseRepository.csproj" />
