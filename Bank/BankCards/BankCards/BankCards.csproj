@@ -26,6 +26,7 @@
     <ProjectReference Include="..\DataBaseRepositoryEF\DataBaseRepositoryEF.csproj" />
     <ProjectReference Include="..\DataBaseRepository\DataBaseRepository.csproj" />
     <ProjectReference Include="..\DataValidationService\DataValidationService.csproj" />
+    <ProjectReference Include="..\UnitOfWorkRepoPattern\UnitOfWorkRepoPattern.csproj" />
   </ItemGroup>
 
   <ItemGroup>

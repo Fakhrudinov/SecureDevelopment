@@ -25,6 +25,8 @@ Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "AbstractFactoryBankCards", 
 EndProject
 Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "ChainOfResponsibilityBankCards", "ChainOfResponsibilityBankCards\ChainOfResponsibilityBankCards.csproj", "{7CE71D29-52F5-4904-82DA-A0C555FCF41B}"
 EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "UnitOfWorkRepoPattern", "UnitOfWorkRepoPattern\UnitOfWorkRepoPattern.csproj", "{A48F9EF8-A537-4F23-8458-BD473E49AE4E}"
+EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
 		Debug|Any CPU = Debug|Any CPU
@@ -75,6 +77,10 @@ Global
 		{7CE71D29-52F5-4904-82DA-A0C555FCF41B}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{7CE71D29-52F5-4904-82DA-A0C555FCF41B}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{7CE71D29-52F5-4904-82DA-A0C555FCF41B}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A48F9EF8-A537-4F23-8458-BD473E49AE4E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A48F9EF8-A537-4F23-8458-BD473E49AE4E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A48F9EF8-A537-4F23-8458-BD473E49AE4E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A48F9EF8-A537-4F23-8458-BD473E49AE4E}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

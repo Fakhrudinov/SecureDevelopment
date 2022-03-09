@@ -1,6 +1,5 @@
 using AuthRepository;
 using AuthService;
-using AutoMapper;
 using AutoMapperLib;
 using DataAbstraction.EnvironmentVariables;
 using DataAbstraction.Repository;
@@ -18,6 +17,9 @@ using System;
 using System.IO;
 using System.Reflection;
 using System.Text;
+using UnitOfWorkRepoPattern;
+using UnitOfWorkRepoPattern.Repository;
+using UnitOfWorkRepoPattern.RepositoryInterfaces;
 
 namespace BankCards
 {
@@ -112,10 +114,10 @@ namespace BankCards
             services.AddAutoMapper(c => c.AddProfile<BankCardMappingProfile>(), typeof(Startup));
 
 
-            //services.AddSwaggerGen(c =>
-            //{
-            //    c.SwaggerDoc("v1", new OpenApiInfo { Title = "BankCards", Version = "v1" });
-            //});
+            //Unit Of work registration
+            services.AddTransient<IRepositoryBankCards, RepositoryBankCard>();
+            services.AddTransient<IRepositoryUser, RepositoryUser>();
+            services.AddTransient<IUnitOfWork, UnitOfWork>();
         }
 
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
