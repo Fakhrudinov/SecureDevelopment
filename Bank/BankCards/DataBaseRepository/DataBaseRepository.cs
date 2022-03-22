@@ -14,13 +14,13 @@ namespace DataBaseRepository
             _connectionString = repoSettings.Value.DefaultConnection;
         }
 
-        public async Task<bool> CheckCardIdExist(int id)
+        public async Task<bool> CheckCardIdExist(int id, CancellationTokenSource cts)
         {
             await using (var conn = new NpgsqlConnection(_connectionString))
             {
                 conn.Open();
 
-                using (var cmd = new NpgsqlCommand())
+                await using (var cmd = new NpgsqlCommand())
                 {
                     cmd.Connection = conn;
 
@@ -34,9 +34,9 @@ namespace DataBaseRepository
 
                     AddIdParamToCommand(cmd, id);
 
-                    using (var reader = cmd.ExecuteReader())
+                    await using (var reader = await cmd.ExecuteReaderAsync(cts.Token))
                     {
-                        while (reader.Read())
+                        while (await reader.ReadAsync(cts.Token))
                         {
                             return true;
                         }
@@ -47,7 +47,7 @@ namespace DataBaseRepository
             }
         }
 
-        public async Task<IEnumerable<CardEntity>> GetAllCards()
+        public async Task<IEnumerable<CardEntity>> GetAllCards(CancellationTokenSource cts)
         {
             var result = new List<CardEntity>();
 
@@ -55,7 +55,7 @@ namespace DataBaseRepository
             {                
                 conn.Open();
 
-                using (var cmd = new NpgsqlCommand())
+                await using (var cmd = new NpgsqlCommand())
                 {
                     cmd.Connection = conn;
 
@@ -64,9 +64,9 @@ namespace DataBaseRepository
                             "\"Id\", \"HolderName\", \"Number\", \"CVVCode\", \"Type\", \"System\", \"IsBlocked\" " +
                         "FROM " +
                             "public.\"CardEntities\";";
-                    using (var reader = cmd.ExecuteReader())
+                    await using (var reader = await cmd.ExecuteReaderAsync(cts.Token))
                     {
-                        while (reader.Read())
+                        while (await reader.ReadAsync(cts.Token))
                         {
                             CardEntity card = GetDataFromReaderToCard(reader);
 
@@ -79,13 +79,13 @@ namespace DataBaseRepository
             return result;
         }
 
-        public async Task<CardEntity> GetCardById(int id)
+        public async Task<CardEntity> GetCardById(int id, CancellationTokenSource cts)
         {
            await using (var conn = new NpgsqlConnection(_connectionString))
             {                
                 conn.Open();
 
-                using (var cmd = new NpgsqlCommand())
+                await using (var cmd = new NpgsqlCommand())
                 {
                     cmd.Connection = conn;
 
@@ -99,9 +99,9 @@ namespace DataBaseRepository
 
                     AddIdParamToCommand(cmd, id);
 
-                    using (var reader = cmd.ExecuteReader())
+                    await using (var reader = await cmd.ExecuteReaderAsync(cts.Token))
                     {
-                        while (reader.Read())
+                        while (await reader.ReadAsync(cts.Token))
                         {
                             return GetDataFromReaderToCard(reader);
                         }
@@ -112,18 +112,18 @@ namespace DataBaseRepository
             }
         }
 
-        public async Task<CardEntity> GetCardByNumber(string number)
+        public async Task<CardEntity> GetCardByNumber(string number, CancellationTokenSource cts)
         {
-            return await PrivateGetCardByNumber(number);
+            return await PrivateGetCardByNumber(number, cts);
         }
 
-        private async Task<CardEntity> PrivateGetCardByNumber(string number)
+        private async Task<CardEntity> PrivateGetCardByNumber(string number, CancellationTokenSource cts)
         {
             await using (var conn = new NpgsqlConnection(_connectionString))
             {
                 conn.Open();
 
-                using (var cmd = new NpgsqlCommand())
+                await using (var cmd = new NpgsqlCommand())
                 {
                     cmd.Connection = conn;
 
@@ -141,9 +141,9 @@ namespace DataBaseRepository
                     param.Value = number;
                     cmd.Parameters.Add(param);
 
-                    using (var reader = cmd.ExecuteReader())
+                    await using (var reader = await cmd.ExecuteReaderAsync(cts.Token))
                     {
-                        while (reader.Read())
+                        while (await reader.ReadAsync(cts.Token))
                         {
                             return GetDataFromReaderToCard(reader);
                         }
@@ -154,18 +154,18 @@ namespace DataBaseRepository
             }
         }
 
-        public async Task EditCardEntity(CardEntity cardEntity)
+        public async Task EditCardEntity(CardEntity cardEntity, CancellationTokenSource cts)
         {
-            await PrivateSaveEditedCard(cardEntity);
+            await PrivateSaveEditedCard(cardEntity, cts);
         }
 
-        private async Task PrivateSaveEditedCard(CardEntity cardEntity)
+        private async Task PrivateSaveEditedCard(CardEntity cardEntity, CancellationTokenSource cts)
         {
             await using (var conn = new NpgsqlConnection(_connectionString))
             {
                 conn.Open();
 
-                using (var cmd = new NpgsqlCommand())
+                await using (var cmd = new NpgsqlCommand())
                 {
                     cmd.Connection = conn;
 
@@ -180,36 +180,36 @@ namespace DataBaseRepository
                     AddAllParamsToCommand(cmd, cardEntity);
                     AddIdParamToCommand(cmd, cardEntity.Id);
 
-                    await cmd.ExecuteNonQueryAsync();
+                    await cmd.ExecuteNonQueryAsync(cts.Token);
                 }
             }
         }
 
-        public async Task<CardEntity> CreateNewCard(CardEntityToPost cardEntity)
+        public async Task<CardEntity> CreateNewCard(CardEntityToPost cardEntity, CancellationTokenSource cts)
         {
             CardEntity newCard = new CardEntity(cardEntity.HolderName, cardEntity.Number, cardEntity.CVVCode, cardEntity.Type, cardEntity.System, cardEntity.IsBlocked);
 
-            await PrivateCreateNewCard(newCard);
+            await PrivateCreateNewCard(newCard, cts);
 
-            return await PrivateGetCardByNumber(newCard.Number);
+            return await PrivateGetCardByNumber(newCard.Number, cts);
         }
 
-        public async Task<CardEntity> CreateNewCardAutoField(CardEntityToPostAutoField cardEntity)
+        public async Task<CardEntity> CreateNewCardAutoField(CardEntityToPostAutoField cardEntity, CancellationTokenSource cts)
         {
             CardEntity newCard = new CardEntity(cardEntity.HolderName, cardEntity.Type, cardEntity.System);
 
-            await PrivateCreateNewCard(newCard);
+            await PrivateCreateNewCard(newCard, cts);
 
-            return await PrivateGetCardByNumber(newCard.Number);
+            return await PrivateGetCardByNumber(newCard.Number, cts);
         }
 
-        public async Task DeleteCardEntity(int id)
+        public async Task DeleteCardEntity(int id, CancellationTokenSource cts)
         {
             await using (var conn = new NpgsqlConnection(_connectionString))
             {
                 conn.Open();
 
-                using (var cmd = new NpgsqlCommand())
+                await using (var cmd = new NpgsqlCommand())
                 {
                     cmd.Connection = conn;
 
@@ -222,7 +222,7 @@ namespace DataBaseRepository
 
                     AddIdParamToCommand(cmd, id);
 
-                    await cmd.ExecuteNonQueryAsync();
+                    await cmd.ExecuteNonQueryAsync(cts.Token);
                 }
             }
         }
@@ -242,13 +242,13 @@ namespace DataBaseRepository
             return cardEntity;
         }
 
-        private async Task PrivateCreateNewCard(CardEntity newCard)
+        private async Task PrivateCreateNewCard(CardEntity newCard, CancellationTokenSource cts)
         {
             await using (var conn = new NpgsqlConnection(_connectionString))
             {
                 conn.Open();
 
-                using (var cmd = new NpgsqlCommand())
+                await using (var cmd = new NpgsqlCommand())
                 {
                     cmd.Connection = conn;
 
@@ -260,7 +260,7 @@ namespace DataBaseRepository
 
                     AddAllParamsToCommand(cmd, newCard);
 
-                    await cmd.ExecuteNonQueryAsync();
+                    await cmd.ExecuteNonQueryAsync(cts.Token);
                 }
             }
         }

@@ -1,5 +1,6 @@
 using AuthRepository;
 using AuthService;
+using DataAbstraction.EnvironmentVariables;
 using DataAbstraction.Repository;
 using DataBaseRepositoryEF;
 using Microsoft.AspNetCore.Authentication.JwtBearer;
@@ -100,6 +101,9 @@ namespace BankCards
 
             services.AddControllers();
 
+            // examples with environment
+            services.Configure<EnvironmentExampleEntity>(Configuration.GetSection("MyEnvironmentValues"));
+            services.Configure<EnvironmentExampleEntitySecond>(Configuration.GetSection("MyEnvironmentValues"));
 
             //services.AddSwaggerGen(c =>
             //{
@@ -110,7 +114,7 @@ namespace BankCards
         // This method gets called by the runtime. Use this method to configure the HTTP request pipeline.
         public void Configure(IApplicationBuilder app, IWebHostEnvironment env)
         {
-            if (env.IsDevelopment())
+            if (env.IsDevelopment() || env.IsStaging())
             {
                 app.UseDeveloperExceptionPage();
                 app.UseSwagger();
