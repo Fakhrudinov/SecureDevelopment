@@ -11,6 +11,8 @@ using System.Threading.Tasks;
 using DataValidationService;
 using System.Text;
 using System.Security.Cryptography;
+using BankCards.WorkWithForeignAssembly;
+using System.Reflection;
 
 namespace PersonsAPI.Controllers
 {
@@ -90,7 +92,7 @@ namespace PersonsAPI.Controllers
             if (userExist == 0)
             {
                 response.IsValid = false;
-                response.ValidationMessages.Add($"U_106.1 '{user.Login}' пользователь или пароль не корректен");
+                response.ValidationMessages.Add($"U_106.2 '{user.Login}' пользователь или пароль не корректен");
 
                 return UnprocessableEntity(response);
             }
@@ -123,6 +125,44 @@ namespace PersonsAPI.Controllers
             SetTokenCookie(newRefreshToken);
 
             return Ok(newRefreshToken);
+        }
+
+
+
+        [HttpGet("new/user")]
+        [AllowAnonymous]
+        public async Task<ActionResult<NewUser>> GetNewUser()
+        {
+            NewUser result = GetNewUserFromForeignLib();
+
+            bool loginNotCreated = true;
+            while (loginNotCreated)
+            {
+                int loginExist = await _userService.GetUserByLoginAsync(result.Login);
+                //check existance
+                if (loginExist != 0) // exist, generate user again
+                {
+                    result = GetNewUserFromForeignLib();
+                }
+                else // ok, write new user to dataBase
+                {
+                    string hashed = HashThisUser(result.Login + _userDelimiter + result.Password);
+                    await _userService.CreateNewUserAsync(result.Login, hashed);
+
+                    loginNotCreated = false;
+                }
+            }
+            return Ok(result);
+        }
+
+        private NewUser GetNewUserFromForeignLib()
+        {
+            NewUser result = AssemblyHandler.LoadAssembly();
+            // очистка
+            GC.Collect();
+            GC.WaitForPendingFinalizers();
+
+            return result;
         }
 
         private void SetTokenCookie(string token)
