@@ -9,6 +9,11 @@ using FluentValidation.Results;
 using Microsoft.AspNetCore.Authorization;
 using System.Threading;
 using System;
+using AutoMapper;
+using AbstractFactoryBankCards.CreditCards;
+using AbstractFactoryBankCards.DebetCards;
+using ChainOfResponsibilityBankCards.ConcreteHandlers;
+using ChainOfResponsibilityBankCards;
 
 namespace BankCards.Controllers
 {
@@ -19,8 +24,13 @@ namespace BankCards.Controllers
     {
         public SelectRepositorySettings _repoSettings { get; set; }
         private IRepository _repository;
+        private readonly IMapper _autoMapper;
 
-        public CardsController(IDataBaseRepositoryEF repositoryEF, IDataBaseRepository repository, IOptions<SelectRepositorySettings> repoSettings)
+        public CardsController(
+            IDataBaseRepositoryEF repositoryEF, 
+            IDataBaseRepository repository, 
+            IOptions<SelectRepositorySettings> repoSettings,
+            IMapper autoMapper)
         {
             _repoSettings = repoSettings.Value;
 
@@ -31,7 +41,9 @@ namespace BankCards.Controllers
             else
             {
                 _repository = repository;
-            }            
+            }
+            
+            _autoMapper = autoMapper;
         }
 
         // GET: api/Cards
@@ -231,13 +243,17 @@ namespace BankCards.Controllers
             var response = new ValidationResponseModel();
             CardEntityValidationService validator = new CardEntityValidationService();
             CardEntity cardCheck = new CardEntity();
+            // mapping manually:
+            //cardCheck.HolderName = cardEntity.HolderName;
+            //cardCheck.Number = cardEntity.Number;
+            //cardCheck.CVVCode = cardEntity.CVVCode;
+            //cardCheck.Type = cardEntity.Type;
+            //cardCheck.System = cardEntity.System;
+            //cardCheck.IsBlocked = cardEntity.IsBlocked;
+
+            //mapping by AutoMap:
+            cardCheck = _autoMapper.Map<CardEntity>(cardEntity);
             cardCheck.Id = 1;
-            cardCheck.HolderName = cardEntity.HolderName;
-            cardCheck.Number = cardEntity.Number;
-            cardCheck.CVVCode = cardEntity.CVVCode;
-            cardCheck.Type = cardEntity.Type;
-            cardCheck.System = cardEntity.System;
-            cardCheck.IsBlocked = cardEntity.IsBlocked;
 
             // check format
             var validationResult = validator.Validate(cardCheck);
@@ -275,10 +291,14 @@ namespace BankCards.Controllers
             var response = new ValidationResponseModel();
             CardEntityValidationService validator = new CardEntityValidationService();
             CardEntity cardCheck = new CardEntity();
+            // mapping manually:
+            //cardCheck.HolderName = cardEntity.HolderName;
+            //cardCheck.Type = cardEntity.Type;
+            //cardCheck.System = cardEntity.System;
+
+            //mapping by AutoMap:
+            cardCheck = _autoMapper.Map<CardEntity>(cardEntity);
             cardCheck.Id = 1;
-            cardCheck.HolderName = cardEntity.HolderName;
-            cardCheck.Type = cardEntity.Type;
-            cardCheck.System = cardEntity.System;
 
             // check format
             var validationResult = validator.Validate(cardCheck);
@@ -376,6 +396,185 @@ namespace BankCards.Controllers
 
                 return Ok();
             }
+        }
+
+
+        [HttpPost("CreateNew/CreditCard/WithAbstractFactory")]
+        [Authorize]
+        public async Task<ActionResult<CardEntity>> CreateCreditCardEntityThruAbstractFactory([FromBody] CardEntityToPostForAbstractFactory cardEntity)
+        {
+            var response = new ValidationResponseModel();
+            CardEntityValidationService validator = new CardEntityValidationService();
+            CardEntity cardCheck = new CardEntity();
+
+            //mapping by AutoMap:
+            cardCheck = _autoMapper.Map<CardEntity>(cardEntity);
+            cardCheck.Id = 1;
+            cardCheck.Type = CardTypeEnum.CardType.Credit;
+
+            // check format
+            var validationResult = validator.Validate(cardCheck);
+            if (!validationResult.IsValid)
+            {
+                response = SetResponseFromValidationResult(validationResult, response);
+
+                return BadRequest(response);
+            }
+
+            CardEntityToPostAutoField cardEntityFromAbstractFactory = new CardEntityToPostAutoField();
+            ConcreteFactoryCardsCredit factory = new ConcreteFactoryCardsCredit();
+
+            switch (cardEntity.System)
+            {
+                case CardSystemEnum.CardSystem.Visa:
+                    cardEntityFromAbstractFactory = factory.CreateCardVISA().GetCardVISA();
+                    break;
+                case CardSystemEnum.CardSystem.MasterCard:
+                    cardEntityFromAbstractFactory = factory.CreateCardMasterCard().GetCardMasterCard();
+                    break;
+                case CardSystemEnum.CardSystem.МИР:
+                    cardEntityFromAbstractFactory = factory.CreateCardMIR().GetCardMIR();
+                    break;
+            }
+
+            cardEntityFromAbstractFactory.HolderName = cardEntity.HolderName;
+            cardEntityFromAbstractFactory.Type = CardTypeEnum.CardType.Credit;
+
+            CardEntity newCard = null;
+            CancellationTokenSource cts = new CancellationTokenSource();
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
+            try
+            {
+                newCard = await _repository.CreateNewCardAutoField(cardEntityFromAbstractFactory, cts);
+            }
+            catch (OperationCanceledException)
+            {
+                response.IsValid = false;
+                response.ValidationMessages.Add($"T_208.1 TimeOut Error. Contact admin to investigate problem");
+                return UnprocessableEntity(response);
+            }
+            finally
+            {
+                cts.Dispose();
+            }
+
+            return Ok(newCard);
+        }
+
+
+        [HttpPost("CreateNew/DebetCard/WithAbstractFactory")]
+        [Authorize]
+        public async Task<ActionResult<CardEntity>> CreateDebetCardEntityThruAbstractFactory([FromBody] CardEntityToPostForAbstractFactory cardEntity)
+        {
+            var response = new ValidationResponseModel();
+            CardEntityValidationService validator = new CardEntityValidationService();
+            CardEntity cardCheck = new CardEntity();
+
+            //mapping by AutoMap:
+            cardCheck = _autoMapper.Map<CardEntity>(cardEntity);
+            cardCheck.Id = 1;
+            cardCheck.Type = CardTypeEnum.CardType.Debet;
+
+            // check format
+            var validationResult = validator.Validate(cardCheck);
+            if (!validationResult.IsValid)
+            {
+                response = SetResponseFromValidationResult(validationResult, response);
+
+                return BadRequest(response);
+            }
+
+            CardEntityToPostAutoField cardEntityFromAbstractFactory = new CardEntityToPostAutoField();
+            ConcreteFactoryCardsDebet factory = new ConcreteFactoryCardsDebet();
+
+            switch (cardEntity.System)
+            {
+                case CardSystemEnum.CardSystem.Visa:
+                    cardEntityFromAbstractFactory = factory.CreateCardVISA().GetCardVISA();
+                    break;
+                case CardSystemEnum.CardSystem.MasterCard:
+                    cardEntityFromAbstractFactory = factory.CreateCardMasterCard().GetCardMasterCard();
+                    break;
+                case CardSystemEnum.CardSystem.МИР:
+                    cardEntityFromAbstractFactory = factory.CreateCardMIR().GetCardMIR();
+                    break;
+            }
+
+            cardEntityFromAbstractFactory.HolderName = cardEntity.HolderName;
+            cardEntityFromAbstractFactory.Type = CardTypeEnum.CardType.Debet;
+
+            CardEntity newCard = null;
+            CancellationTokenSource cts = new CancellationTokenSource();
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
+            try
+            {
+                newCard = await _repository.CreateNewCardAutoField(cardEntityFromAbstractFactory, cts);
+            }
+            catch (OperationCanceledException)
+            {
+                response.IsValid = false;
+                response.ValidationMessages.Add($"T_209.1 TimeOut Error. Contact admin to investigate problem");
+                return UnprocessableEntity(response);
+            }
+            finally
+            {
+                cts.Dispose();
+            }
+
+            return Ok(newCard);
+        }
+
+        [HttpPost("CreateNew/Card/WithChainOfResponsibility")]
+        [Authorize]
+        public async Task<ActionResult<CardEntity>> CreateCardEntityWithChainOfResponsibility([FromBody] CardEntityToPostAutoField cardEntity)
+        {
+            var response = new ValidationResponseModel();
+            CardEntityValidationService validator = new CardEntityValidationService();
+            CardEntity cardCheck = new CardEntity();
+
+            //mapping by AutoMap:
+            cardCheck = _autoMapper.Map<CardEntity>(cardEntity);
+            cardCheck.Id = 1;
+
+            // check format
+            var validationResult = validator.Validate(cardCheck);
+            if (!validationResult.IsValid)
+            {
+                response = SetResponseFromValidationResult(validationResult, response);
+
+                return BadRequest(response);
+            }
+
+            // создаём цепочку.
+            var handlerVISA = new HandlerToSystemVISA();
+            var handlerMasterCard = new HandlerToSystemMasterCard();
+            var handlerMIR = new HandlerToSystemMIR();
+            handlerVISA.SetNext(handlerMasterCard).SetNext(handlerMIR);
+            // получаем объект из цепочки
+            CardEntityToPostAutoField cardEntityChainOfResponsibility = HandlersAccessor.GetObjectFromHandlers(handlerVISA, cardEntity.System);
+            
+            cardEntityChainOfResponsibility.HolderName = cardEntity.HolderName;
+            cardEntityChainOfResponsibility.Type = cardEntity.Type;
+
+            CardEntity newCard = null;
+            CancellationTokenSource cts = new CancellationTokenSource();
+            cts.CancelAfter(TimeSpan.FromSeconds(5));
+            try
+            {
+                newCard = await _repository.CreateNewCardAutoField(cardEntityChainOfResponsibility, cts);
+            }
+            catch (OperationCanceledException)
+            {
+                response.IsValid = false;
+                response.ValidationMessages.Add($"T_210.1 TimeOut Error. Contact admin to investigate problem");
+                return UnprocessableEntity(response);
+            }
+            finally
+            {
+                cts.Dispose();
+            }
+
+            return Ok(newCard);
         }
 
 
